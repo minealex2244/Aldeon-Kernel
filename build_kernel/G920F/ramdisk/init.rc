@@ -1537,13 +1537,3 @@ on property:service.vpnclientd.enable=1
     start vpnclientd
 on property:service.vpnclientd.enable=0
     stop vpnclientd
-
-# init.d support
-service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
-    class late_start
-    user root
-    group shell
-    oneshot
-
-on property:sys.boot_completed=1
-    start sysinit
