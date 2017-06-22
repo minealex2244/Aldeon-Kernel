@@ -1,1 +1,4 @@
 output/*
+build_kernel/G920F/Image
+build_kernel/G920F/boot.img
+build_kernel/G920F/ramdisk.gz
