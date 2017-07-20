@@ -5,7 +5,7 @@ EXTRAVERSION =
 NAME = TOSSUG Baby Fish
 
 #TOOLCHAIN_DIR = $(CURDIR)/toolchain/aarch64-linux-android-5.3-kernel/bin/aarch64-linux-android-
-TOOLCHAIN_DIR =/home/minealex2244/Desktop/SM-G920F/aarch64-linux-android-4.9-kernel/bin/aarch64-linux-android-
+TOOLCHAIN_DIR =/home/minealex2244/Desktop/SM-G920F/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 
 ifdef CONFIG_WITH_CCACHE
 ccache := ccache
@@ -433,10 +433,7 @@ KBUILD_CFLAGS   := -DNDEBUG $(GRAPHITE) -w -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-format-security -ffast-math \
 		   -fno-delete-null-pointer-checks \
 		   -fdiagnostics-show-option \
-		   -pipe  -funswitch-loops -fpredictive-commoning -fgcse-after-reload \
-		   -ftree-loop-distribution -ftree-loop-if-convert -fivopts -fipa-pta -fira-hoist-pressure \
-		   -fmodulo-sched -fmodulo-sched-allow-regmoves \
-		   -fbranch-target-load-optimize -fsingle-precision-constant \
+		   -pipe  -fpredictive-commoning \
 		   -Werror -Wno-error=unused-variable -Wno-error=unused-function \
 		   -std=gnu89 -Wno-discarded-array-qualifiers -Wno-logical-not-parentheses -Wno-array-bounds -Wno-switch -Wno-unused-variable \
 		   -march=armv8-a+crc -mtune=cortex-a57.cortex-a53
@@ -447,10 +444,7 @@ KBUILD_CFLAGS   := -DNDEBUG -w -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-format-security -ffast-math \
 		   -fno-delete-null-pointer-checks \
 		   -fdiagnostics-show-option \
-		   -pipe  -funswitch-loops -fpredictive-commoning -fgcse-after-reload \
-		   -ftree-loop-distribution -ftree-loop-if-convert -fivopts -fipa-pta -fira-hoist-pressure \
-		   -fmodulo-sched -fmodulo-sched-allow-regmoves \
-		   -fbranch-target-load-optimize -fsingle-precision-constant \
+		   -pipe  -fpredictive-commoning \
 		   -Werror -Wno-error=unused-variable -Wno-error=unused-function \
 		   -std=gnu89 -Wno-discarded-array-qualifiers -Wno-logical-not-parentheses -Wno-array-bounds -Wno-switch -Wno-unused-variable \
 		   -march=armv8-a+crc -mtune=cortex-a57.cortex-a53
