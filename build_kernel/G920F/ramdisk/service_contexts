@@ -405,14 +405,6 @@ ISDtvService.SDtvStackService               u:object_r:oneseg_mw_service:s0
 keyguard                                    u:object_r:keyguard_service:s0
 kiesusb                                     u:object_r:kiesusb_service:s0
 kioskmode                                   u:object_r:kioskmode_service:s0
-knox_ccm_policy                             u:object_r:EDM_Policy_service:s0
-knox_pinpad_service                         u:object_r:EDM_Policy_service:s0
-knox_scep_policy                            u:object_r:EDM_Policy_service:s0
-knox_timakeystore_policy                    u:object_r:EDM_Policy_service:s0
-knox_ucsm_policy                            u:object_r:EDM_Policy_service:s0
-knox_vpn_policy                             u:object_r:EDM_Policy_service:s0
-knoxnap                                     u:object_r:EDM_Policy_service:s0
-knoxcustom                                  u:object_r:knoxcustom_service:s0
 ktuca                                       u:object_r:ktuca_service:s0
 layout_inflater                             u:object_r:layout_inflater_service:s0
 ldap_account_policy                         u:object_r:EDM_Policy_service:s0
@@ -511,7 +503,6 @@ SecurityManagerService                      u:object_r:SecurityManager_service:s
 SecTVOutService                             u:object_r:surfaceflinger_service:s0
 SMPlayer                                    u:object_r:oneseg_mw_service:s0
 SveService                                  u:object_r:Sve_service:s0
-tima                                        u:object_r:tima_service:s0
 transcloud                                  u:object_r:transcloud_service:s0
 tw_toolbox                                  u:object_r:tw_toolbox_service:s0
 TUI                                         u:object_r:tlc_server_service:s0

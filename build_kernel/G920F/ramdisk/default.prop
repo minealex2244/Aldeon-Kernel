@@ -35,3 +35,6 @@ debug.atrace.tags.enableflags=0
 ro.bootimage.build.date=Wed Feb 1 10:40:21 KST 2017
 ro.bootimage.build.date.utc=1485913221
 ro.bootimage.build.fingerprint=samsung/zerofltexx/zeroflte:7.0/NRD90M/G920FXXU5EQAC:user/test-keys
+# Security fixes
+ro.config.tima=0
+ro.config.knox=0
