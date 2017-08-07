@@ -74,9 +74,24 @@ if [ "$TARGET" = "G925F" ] ; then
 	export KERNEL_CONFIG="exynos7420-zerolte_defconfig";
 fi;
 
+# G920T
+if [ "$TARGET" = "G920T" ] ; then
+	export KERNEL_CONFIG="zerofltetmo_02_defconfig";
+fi;
+
 # G925T
 if [ "$TARGET" = "G925T" ] ; then
-	export KERNEL_CONFIG="custom-zeroltetmo";
+	export KERNEL_CONFIG="zeroltetmo_02_defconfig";
+fi;
+
+# G920W8
+if [ "$TARGET" = "G920W8" ] ; then
+	export KERNEL_CONFIG="zerofltebmc_02_defconfig";
+fi;
+
+# G925W8
+if [ "$TARGET" = "G925W8" ] ; then
+	export KERNEL_CONFIG="zeroltebmc_02_defconfig";
 fi;
 
 # build script

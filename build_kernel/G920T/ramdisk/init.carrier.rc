@@ -1,9 +1,3 @@
-# Copyright (C) 2012 The Android Open Source Project
-#
-# IMPORTANT: Do not create world writable files or directories.
-# This is a common source of Android security bugs.
-#
-
 import init.gps.rc
 
 on boot
@@ -26,13 +20,6 @@ service imsd /system/bin/imsd
     socket sme_socket stream 0660 system system
     user root
     group system radio net_raw inet net_admin
-
-#SLocation
-service cellgeofenced /system/bin/cellgeofenced
-    class main
-    socket cellgeofence seqpacket 0660 gps system
-    user gps
-    group system inet
 
 on property:sys.usb.config=adb
     write /sys/module/link_device_pm/parameters/cp_hold_time 100
@@ -72,7 +59,6 @@ on property:sys.usb.config=rndis,acm,dm,adb
 
 on property:sys.usb.config=acm,dm,adb
     write /sys/module/link_device_pm/parameters/cp_hold_time 100
-
 # SIMLock Daemon
 on property:sys.mobicoredaemon.enable=true
 	start tsdaemon
