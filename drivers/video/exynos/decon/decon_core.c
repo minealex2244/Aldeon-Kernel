@@ -1087,7 +1087,7 @@ static int decon_get_overlap_cnt(struct decon_device *decon,
 }
 #endif
 
-static void vpp_dump(struct decon_device *decon)
+void vpp_dump(struct decon_device *decon)
 {
 	int i;
 
@@ -3946,6 +3946,33 @@ static void decon_update_regs_handler(struct kthread_work *work)
 	}
 }
 
+static int decon_validate_dma_mapping(struct decon_device *decon,
+		struct decon_win_config *win_config)
+{
+
+	int i;
+	struct decon_win_config *config;
+	if (decon->id)
+		return true;
+
+	for (i = 0; i < decon->pdata->max_win; i++) {
+		config = &win_config[i];
+		if (config->state != DECON_WIN_STATE_BUFFER)
+			continue;
+
+		if (config->idma_type == IDMA_G2) {
+			if (i != 6) {
+				decon_err("%s: IDMA2 is mapped to %d\n", __func__, i);
+				return false;
+			}
+		} else if (i == 6) {
+			decon_err("%s: %d is mapped to win[6]\n", __func__, config->idma_type);
+			return false;
+		}
+	}
+	return true;
+}
+
 static void decon_set_smart_dma_mapping(struct decon_device *decon,
 			struct decon_win_config *win_config)
 {
@@ -4302,6 +4329,11 @@ static int decon_set_win_config(struct decon_device *decon,
 	}
 windows_config:
 #endif
+	if (!decon_validate_dma_mapping(decon, win_config)) {
+		decon_err("%s: IDMA2 wrong mapping\n", __func__);
+		ret = -ENOMEM;
+		goto err;
+	}
 
 	regs = kzalloc(sizeof(struct decon_reg_data), GFP_KERNEL);
 	if (!regs) {
@@ -4530,7 +4562,7 @@ int decon_doze_enable(struct decon_device *decon)
 #endif
 
 #ifdef CONFIG_FB_WINDOW_UPDATE
-	if ((decon->pdata->out_type == DECON_OUT_DSI) && (decon->need_update)) {
+	if ((decon->out_type == DECON_OUT_DSI) && (decon->need_update)) {
 		decon->need_update = false;
 		decon->update_win.x = 0;
 		decon->update_win.y = 0;
@@ -4608,7 +4640,7 @@ int decon_doze_suspend(struct decon_device *decon)
 	iovmm_deactivate(decon->dev);
 
 	/* DMA protection disable must be happen on vpp domain is alive */
-	if (psr.out_type == DECON_OUT_DSI) {
+	if (decon->out_type == DECON_OUT_DSI) {
 		decon_set_protected_content(decon, NULL);
 		decon->vpp_usage_bitmask = 0;
 		decon_vpp_stop(decon, true);
@@ -4625,7 +4657,7 @@ int decon_doze_suspend(struct decon_device *decon)
 	decon_runtime_suspend(decon->dev);
 #endif
 
-	if (psr.out_type == DECON_OUT_DSI) {
+	if (decon->out_type == DECON_OUT_DSI) {
 #if 1
 		/* stop output device (mipi-dsi or hdmi) */
 		ret = v4l2_subdev_call(decon->output_sd, video, s_stream, DSIM_REQ_DOZE_SUSPEND);
@@ -4636,7 +4668,7 @@ int decon_doze_suspend(struct decon_device *decon)
 		}
 #endif
 	}
-	if (psr.out_type == DECON_OUT_DSI) {
+	if (decon->out_type == DECON_OUT_DSI) {
 		pm_relax(decon->dev);
 		dev_warn(decon->dev, "pm_relax");
 	}
