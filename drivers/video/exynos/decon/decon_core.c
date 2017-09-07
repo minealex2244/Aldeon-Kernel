@@ -37,6 +37,9 @@
 #include <linux/debugfs.h>
 #include <linux/of_gpio.h>
 #include <linux/irq.h>
+#ifdef CONFIG_STATE_NOTIFIER
+#include <linux/state_notifier.h>
+#endif
 
 #include <mach/regs-clock.h>
 #include <mach/exynos-pm.h>
@@ -1209,7 +1212,7 @@ static int decon_reg_ddi_partial_cmd(struct decon_device *decon, struct decon_wi
 	if( decon->need_DSU_update != DECON_DSU_DONE )
 		decon_dsu_handler(decon);
 #endif
-	
+
 	/* Partial Command */
 	win_rect.x = rect->x;
 	win_rect.y = rect->y;
@@ -1856,6 +1859,9 @@ static int decon_blank(int blank_mode, struct fb_info *info)
 			decon_err("failed to disable decon\n");
 			goto blank_exit;
 		}
+#ifdef CONFIG_STATE_NOTIFIER
+		state_suspend();
+#endif
 		break;
 	case FB_BLANK_UNBLANK:
 		DISP_SS_EVENT_LOG(DISP_EVT_UNBLANK, &decon->sd, ktime_set(0, 0));
@@ -1864,6 +1870,9 @@ static int decon_blank(int blank_mode, struct fb_info *info)
 			decon_err("failed to enable decon\n");
 			goto blank_exit;
 		}
+#ifdef CONFIG_STATE_NOTIFIER
+		state_resume();
+#endif
 		break;
 	case FB_BLANK_VSYNC_SUSPEND:
 	case FB_BLANK_HSYNC_SUSPEND:
@@ -3672,6 +3681,10 @@ static void __decon_update_regs(struct decon_device *decon, struct decon_reg_dat
 				regs->wb_dma_buf_data.dma_addr);
 
 	decon_to_psr_info(decon, &psr);
+	if (decon->int_fifo_status == false) {
+		decon_reg_set_int_fifo(decon->id, 1);
+		decon->int_fifo_status = true;
+	}
 	decon_reg_start(decon->id, decon->pdata->dsi_mode, &psr);
 #ifdef CONFIG_DECON_MIPI_DSI_PKTGO
 	if (!decon->id) {
@@ -3946,33 +3959,6 @@ static void decon_update_regs_handler(struct kthread_work *work)
 	}
 }
 
-static int decon_validate_dma_mapping(struct decon_device *decon,
-		struct decon_win_config *win_config)
-{
-
-	int i;
-	struct decon_win_config *config;
-	if (decon->id)
-		return true;
-
-	for (i = 0; i < decon->pdata->max_win; i++) {
-		config = &win_config[i];
-		if (config->state != DECON_WIN_STATE_BUFFER)
-			continue;
-
-		if (config->idma_type == IDMA_G2) {
-			if (i != 6) {
-				decon_err("%s: IDMA2 is mapped to %d\n", __func__, i);
-				return false;
-			}
-		} else if (i == 6) {
-			decon_err("%s: %d is mapped to win[6]\n", __func__, config->idma_type);
-			return false;
-		}
-	}
-	return true;
-}
-
 static void decon_set_smart_dma_mapping(struct decon_device *decon,
 			struct decon_win_config *win_config)
 {
@@ -4072,7 +4058,7 @@ static void decon_change_lcdinfo_by_DSU( struct decon_device *decon, int DSU_mod
 			decon->lcd_info->xres = 720;
 			decon->lcd_info->yres = 1280;
 			break;
-		default: 
+		default:
 			pr_err( "%s: unknown case %d(%d,%d).\n", __func__, DSU_mode, decon->DSU_rect.w, decon->DSU_rect.h );
 		break;
 		}
@@ -4100,7 +4086,7 @@ static void decon_dsu_handler(struct decon_device *decon)
 	/* 1 frame delay after Display-off : change of PPS is showing at once. therefore, PPS change must be next frame of display-off */
 	v4l2_subdev_call(decon->output_sd, core, ioctl, DSIM_IOC_DISPLAY_ONOFF, (void*) 0);
 	usleep_range(17000, 17000);
-#endif	
+#endif
 
 	loop_out = false;
 	while( !loop_out ) {
@@ -4248,7 +4234,7 @@ static int decon_set_win_config(struct decon_device *decon,
 	if( decon->dsu_lock_cnt > 0  ) {
 		decon->dsu_lock_cnt--;
 		if( decon->dsu_lock_cnt == 0 ) {
-#ifdef CONFIG_FB_DSU_NOT_SEAMLESS			
+#ifdef CONFIG_FB_DSU_NOT_SEAMLESS
 			v4l2_subdev_call(decon->output_sd, core, ioctl, DSIM_IOC_DISPLAY_ONOFF, (void*) 1);
 #endif
 		}
@@ -4329,11 +4315,6 @@ static int decon_set_win_config(struct decon_device *decon,
 	}
 windows_config:
 #endif
-	if (!decon_validate_dma_mapping(decon, win_config)) {
-		decon_err("%s: IDMA2 wrong mapping\n", __func__);
-		ret = -ENOMEM;
-		goto err;
-	}
 
 	regs = kzalloc(sizeof(struct decon_reg_data), GFP_KERNEL);
 	if (!regs) {
@@ -6210,6 +6191,7 @@ static int decon_probe(struct platform_device *pdev)
 		call_panel_ops(dsim, displayon, dsim);
 
 decon_init_done:
+		decon->int_fifo_status = false;
 		decon->ignore_vsync = false;
 		decon->disp_ss_log_level = DISP_EVENT_LEVEL_HIGH;
 		if ((decon->id == 0)  && (decon->pdata->psr_mode == DECON_MIPI_COMMAND_MODE)) {
