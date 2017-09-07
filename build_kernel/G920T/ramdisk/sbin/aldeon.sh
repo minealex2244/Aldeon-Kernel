@@ -11,9 +11,10 @@ fi;
 # KNOX warranty status
 sh /sbin/resetprop.sh > /dev/null;
 
-# Mount rootfs as RW
+# Mount rootfs and system as RW
 
 mount -o rw,remount rootfs;
+mount -o rw,remount /system;
 
 # Fix permissions
 
@@ -25,3 +26,10 @@ chmod 0666 /sys/devices/14ac0000.mali/dvfs_governor
 # Synapse
 
 chmod -R 755 /res/*;
+
+# Create uci link if not present
+
+if [ ! -e /system/bin/uci ]; then
+     ln -s ../../res/synapse/uci /system/bin/uci
+fi
+
