@@ -18,6 +18,7 @@ mount -o rw,remount rootfs;
 # Fix permissions
 
 chmod 0666 /sys/devices/14ac0000.mali/dvfs_governor
+chmod 0666 /sys/module/workqueue/parameters/power_efficient
 
 # Set stock clock values
 
